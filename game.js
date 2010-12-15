@@ -1,3 +1,4 @@
+var d45 = 0.785398163;
 function hero() {
 	this.base = new rw.Ent('hero','hero.d1l',32,32);
 	this.heading = 'd';
@@ -29,7 +30,54 @@ function hero() {
 			(this.count<5) ? this.count++ : (this.count=0,(this.ani==1) ? this.ani=2 : this.ani=1);
 			this.base.changeSprite('hero.'+this.heading+this.ani+'l');
 		}
+		if (rw.key('x')) {
+			var lp = [];
+			switch (this.heading) {
+				case 'u':
+					lp = ['ud', 0, -1, 0, -32];
+					break;
+				case 'ur':
+					lp = ['urdl', d45, -d45, 32, -32];
+					break;
+				case 'r':
+					lp = ['lr', 1, 0, 32, 0];
+					break;
+				case 'dr':
+					lp = ['uldr', d45, d45, 32, 32];
+					break;
+				case 'd':
+					lp = ['ud', 0, 1, 0, 32];
+					break;
+				case 'dl':
+					lp = ['urdl', -d45, d45, -32, 32];
+					break;
+				case 'l':
+					lp = ['lr', -1, 0, -32, 0];
+					break;
+				case 'ul':
+					lp = ['uldr', -1, -1, -32, -32];
+					break;
+			};
+			rw.newEnt(new laser(lp[0], lp[1], lp[2], X1+lp[3], Y1+lp[4]));
+		}
 	}
+}
+
+var lascount = 0;
+function laser(dir, x, y, posX, posY) {
+	this.base = new rw.Ent('laser'+lascount++, 'laser.'+dir, 32, 32);
+	this.countdown = 50;
+	this.update = function() {
+		if (this.countdown>0) {
+			this.countdown--;
+			this.base.move(x,y);
+		} else {
+			return false;
+		}
+	};
+	this.init = function() {
+		this.base.display(posX,posY);
+	};
 }
 
 rw.init(512, 512, 'gamearea')
@@ -68,6 +116,13 @@ rw.init(512, 512, 'gamearea')
 		l2g: [32, 32, 192, 96],
 		ul1g: [32, 32, 224, 64],
 		ul2g: [32, 32, 224, 96]
+	},
+	laser: {
+		src: 'sprites/laser.png',
+		ud: [32, 32, 0, 0],
+		urdl: [32, 32, 32, 0],
+		lr: [32, 32, 64, 0],
+		uldr: [32, 32, 96, 0]
 	}
 }, function(){
 	rw.newEnt(new hero()).base.display(240,240,240).end()
