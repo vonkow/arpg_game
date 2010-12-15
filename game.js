@@ -4,61 +4,90 @@ function hero() {
 	this.heading = 'd';
 	this.ani = 1;
 	this.count = 0;
+	this.lasCount = 0;
 	this.update = function(X1, Y1, X2, Y2) {
-		var moving = false,
-			tempHead = '';
+		var moving = false;
 		if (rw.key('da')) {
-			this.base.move(0,1);
 			moving = true;
-			tempHead = 'd';
+			if (rw.key('ra')) {
+				this.heading = 'dr';
+				this.base.move(d45, d45);
+				rw.rules['offset'].pos = [-d45, -d45];
+			} else if (rw.key('la')) {
+				this.heading = 'dl';
+				this.base.move(-d45, d45);
+				rw.rules['offset'].pos = [d45, -d45];
+			} else {
+				this.heading = 'd';
+				this.base.move(0,1);
+				rw.rules['offset'].pos = [0, -1];
+			}
 		} else if (rw.key('ua')) {
-			this.base.move(0,-1);
 			moving = true;
-			tempHead = 'u';
-		}
-		if (rw.key('la')) {
+			if (rw.key('ra')) {
+				this.heading = 'ur';
+				this.base.move(d45, -d45);
+				rw.rules['offset'].pos = [-d45, d45];
+			} else if (rw.key('la')) {
+				this.heading = 'ul';
+				this.base.move(-d45, -d45);
+				rw.rules['offset'].pos = [d45, d45];
+			} else {
+				this.heading = 'u';
+				this.base.move(0,-1);
+				rw.rules['offset'].pos = [0, 1];
+			}
+		} else if (rw.key('la')) {
+			moving = true;
+			this.heading = 'l';
 			this.base.move(-1,0);
-			moving = true;
-			tempHead += 'l';
+			rw.rules['offset'].pos = [1, 0];
 		} else if (rw.key('ra')) {
-			this.base.move(1,0);
 			moving = true;
-			tempHead += 'r';
-		}
+			this.heading = 'r';
+			this.base.move(1,0);
+			rw.rules['offset'].pos = [-1, 0];
+		} else {
+			rw.rules['offset'].pos = [0, 0];
+		};
 		if (moving) {
-			this.heading = tempHead;
 			(this.count<5) ? this.count++ : (this.count=0,(this.ani==1) ? this.ani=2 : this.ani=1);
 			this.base.changeSprite('hero.'+this.heading+this.ani+'l');
 		}
-		if (rw.key('x')) {
-			var lp = [];
-			switch (this.heading) {
-				case 'u':
-					lp = ['ud', 0, -1, 0, -32];
-					break;
-				case 'ur':
-					lp = ['urdl', d45, -d45, 32, -32];
-					break;
-				case 'r':
-					lp = ['lr', 1, 0, 32, 0];
-					break;
-				case 'dr':
-					lp = ['uldr', d45, d45, 32, 32];
-					break;
-				case 'd':
-					lp = ['ud', 0, 1, 0, 32];
-					break;
-				case 'dl':
-					lp = ['urdl', -d45, d45, -32, 32];
-					break;
-				case 'l':
-					lp = ['lr', -1, 0, -32, 0];
-					break;
-				case 'ul':
-					lp = ['uldr', -1, -1, -32, -32];
-					break;
-			};
-			rw.newEnt(new laser(lp[0], lp[1], lp[2], X1+lp[3], Y1+lp[4]));
+		if (this.lasCount>0) {
+			this.lasCount--;
+		} else {
+			if (rw.key('x')) {
+				var lp = [];
+				switch (this.heading) {
+					case 'u':
+						lp = ['ud', 0, -1, 0, -32];
+						break;
+					case 'ur':
+						lp = ['urdl', d45, -d45, 32, -32];
+						break;
+					case 'r':
+						lp = ['lr', 1, 0, 32, 0];
+						break;
+					case 'dr':
+						lp = ['uldr', d45, d45, 32, 32];
+						break;
+					case 'd':
+						lp = ['ud', 0, 1, 0, 32];
+						break;
+					case 'dl':
+						lp = ['urdl', -d45, d45, -32, 32];
+						break;
+					case 'l':
+						lp = ['lr', -1, 0, -32, 0];
+						break;
+					case 'ul':
+						lp = ['uldr', -1, -1, -32, -32];
+						break;
+				};
+				rw.newEnt(new laser(lp[0], lp[1], lp[2], X1+lp[3], Y1+lp[4]));
+				this.lasCount = 5;
+			}
 		}
 	}
 }
@@ -70,7 +99,7 @@ function laser(dir, x, y, posX, posY) {
 	this.update = function() {
 		if (this.countdown>0) {
 			this.countdown--;
-			this.base.move(x,y);
+			this.base.move(x*5,y*5);
 		} else {
 			return false;
 		}
@@ -126,5 +155,11 @@ rw.init(512, 512, 'gamearea')
 	}
 }, function(){
 	rw.newEnt(new hero()).base.display(240,240,240).end()
-	.start();
+	.newRule('offset', {
+		base: new rw.Rule('true', 2),
+		pos: [0,0],
+		rule: function() {
+			rw.moveAll(this.pos[0], this.pos[1]);
+		}
+	}).start();
 })
