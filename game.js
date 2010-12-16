@@ -83,7 +83,7 @@
 				}
 			}
 		}
-		this.hitMap = [['hero', ['wu', 'wd', 'wl', 'wr'], 2, 2, 28, 28]];
+		this.hitMap = [['hero', ['wu', 'wd', 'wl', 'wr', 'villan'], 2, 2, 28, 28]];
 		this.gotHit = function(by) {
 			if (((by=='wl')&&(this.heading.indexOf('l')!=-1))
 			|| ((by=='wr')&&(this.heading.indexOf('r')!=-1))) {
@@ -110,14 +110,21 @@
 				this.base.move(x*5,y*5);
 			} else return false;
 		};
-		this.hitMap = [['las', ['test'], 12, 12, 8, 8]];
+		this.hitMap = [['las', ['villan'], 12, 12, 8, 8]];
 		this.gotHit = function(by) {
-			if (by=='test') return false;
+			if (by=='villan') return false;
 		};
 		this.init = function() {
 			this.base.display(posX,posY);
 		};
-	}
+	};
+
+	function villan() {
+		this.base = new rw.Ent('test', 'hero.d1g', 32, 32);
+		this.update = function() {};
+		this.hitMap = [['villan', ['las', 'hero'], 0, 0, 32, 32]];
+		this.gotHit = function() {};
+	};
 
 	// Wall Count
 	var wallCount = 0;
@@ -168,12 +175,7 @@
 		.newEnt(new wall(112, 304, 320, 128)).base.end()
 		.newEnt(new wall(400, 336, 112, 160)).base.end()
 		.newEnt(new wall(544, 336, 96, 160)).base.end()
-		.newEnt({
-			base: new rw.Ent('test', 'hero.d1g', 32, 32),
-			update: function() {},
-			hitMap: [['test', ['las'], 0, 0, 32, 32]],
-			gotHit: function() {}
-		}).base.display(300, 200).end()
+		.newEnt(new villan()).base.display(300, 200).end()
 		.newRule('offset', {
 			base: new rw.Rule('true', 2),
 			pos: [0,0],
