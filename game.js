@@ -2,6 +2,7 @@
 	// Load all Resources
 	function loadAll(callback) {
 		rw.loadSprites({
+			map: ['sprites/map.png', 640, 640, 0, 0],
 			hero: {
 				src: 'sprites/commander.png',
 				u1l: [32, 32, 0, 0], u2l: [32, 32, 0, 32],
@@ -82,7 +83,7 @@
 				}
 			}
 		}
-		this.hitMap = [['hero', ['wu', 'wd', 'wl', 'wr'], 4, 4, 24, 24]];
+		this.hitMap = [['hero', ['wu', 'wd', 'wl', 'wr'], 2, 2, 28, 28]];
 		this.gotHit = function(by) {
 			if (((by=='wl')&&(this.heading.indexOf('l')!=-1))
 			|| ((by=='wr')&&(this.heading.indexOf('r')!=-1))) {
@@ -91,6 +92,7 @@
 			} else if (((by=='wu')&&(this.heading.indexOf('u')!=-1))
 			|| ((by=='wd')&&(this.heading.indexOf('d')!=-1))) {
 				this.base.wipeMove('y');
+				this.base.wipeMove('z');
 				rw.rules['offset'].pos[1] = 0;
 			}
 		}
@@ -137,11 +139,35 @@
 	};
 
 	// Start the damn thang
-	rw.init(512, 512, 'gamearea')
+	rw.init(320, 320, 'gamearea')
 	.setFPS(50)
 	.func(loadAll(function(){
-		rw.newEnt(new hero()).base.display(240,240,240).end()
-		.newEnt(new wall(300, 200, 100, 100)).base.end()
+		rw.newEnt({
+			base: new rw.Ent('lag','text',150,20),
+			text: {
+				text: 'Lag: ',
+				form: 'fill',
+				style: {
+					font: '16px sans-serif',
+					fill: '#000'
+				}
+			},
+			update: function() {
+				this.text.text = 'Lag: '+rw.getLag()+'(ms)';
+				this.base.moveTo(1,16);
+			}
+		}).base.display(1,16,16).end()
+		.newEnt(new hero()).base.display(144,144,144).end()
+		.newEnt({
+			base: new rw.Ent('map', 'map', 640, 640),
+			update: function() {}
+		}).base.display(0, 0, -32).end()
+		.newEnt(new wall(96, 0, 96, 32)).base.end()
+		.newEnt(new wall(0, 64, 192, 32)).base.end()
+		.newEnt(new wall(0, 272, 176, 128)).base.end()
+		.newEnt(new wall(112, 304, 320, 128)).base.end()
+		.newEnt(new wall(400, 336, 112, 160)).base.end()
+		.newEnt(new wall(544, 336, 96, 160)).base.end()
 		.newEnt({
 			base: new rw.Ent('test', 'hero.d1g', 32, 32),
 			update: function() {},
@@ -152,7 +178,7 @@
 			base: new rw.Rule('true', 2),
 			pos: [0,0],
 			rule: function() {
-				rw.moveAll(this.pos[0], this.pos[1]);
+				rw.moveAll(this.pos[0], this.pos[1], this.pos[1]);
 			}
 		}).start();
 	}));
