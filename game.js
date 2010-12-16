@@ -90,6 +90,16 @@ function hero() {
 			}
 		}
 	}
+	this.hitMap = [['hero', ['wu', 'wd', 'wl', 'wr'], 0, 0, 32, 32]];
+	this.gotHit = function(by) {
+		if (((by=='wl')&&(this.heading.indexOf('l')!=-1))||((by=='wr')&&(this.heading.indexOf('r')!=-1))) {
+			this.base.wipeMove('x');
+			rw.rules['offset'].pos[0] = 0;
+		} else if (((by=='wu')&&(this.heading.indexOf('u')!=-1))||((by=='wd')&&(this.heading.indexOf('d')!=-1))) {
+			this.base.wipeMove('y');
+			rw.rules['offset'].pos[1] = 0;
+		}
+	}
 }
 
 var lascount = 0;
@@ -107,6 +117,17 @@ function laser(dir, x, y, posX, posY) {
 	this.init = function() {
 		this.base.display(posX,posY);
 	};
+}
+
+var wallCount = 0;
+function wall(d, x, y, w, h) {
+	this.base = new rw.Ent('wall_'+wallCount++, ' ', w, h);
+	this.update = function() {};
+	this.hitMap = [['w'+d, ['hero'], 0, 0, w, h]];
+	this.gotHit = function() {};
+	this.init = function() {
+		this.base.display(x, y);
+	}
 }
 
 rw.init(512, 512, 'gamearea')
@@ -155,6 +176,14 @@ rw.init(512, 512, 'gamearea')
 	}
 }, function(){
 	rw.newEnt(new hero()).base.display(240,240,240).end()
+	.newEnt(new wall('d', 300, 200, 100, 1)).base.end()
+	.newEnt(new wall('r', 300, 200, 1, 100)).base.end()
+	.newEnt(new wall('u', 300, 300, 100, 1)).base.end()
+	.newEnt(new wall('l', 400, 200, 1, 100)).base.end()
+	.newEnt({
+		base: new rw.Ent('test', 'hero.d1g', 32, 32),
+		update: function() {}
+	}).base.display(300, 200).end()
 	.newRule('offset', {
 		base: new rw.Rule('true', 2),
 		pos: [0,0],
